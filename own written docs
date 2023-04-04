@@ -1,0 +1,1830 @@
+Terraform revision:
+ -------------------
+  Basic Knowledge About infra-provisioning/and nature of terraform and deployment types
+  
+* Terraform is a infra-provisioning tool that can create the required resource in any kind of virtual environment
+* IaC infrastracture as code means providing required resource in required environment in the form of code(yaml/json)
+* basically Iac tools are idempotent in nature
+   Idempotent: it is the property that executes one time or multiple time occurs same result
+* terraform can deploy its resource in any environment 
+  Data center,
+  Aws cloud
+  Azure cloud
+  Gcp cloud
+  own cloud
+* InfraProvisioning:
+----------------------
+ This represents using Infrastructure as a Code and deploy to target environment
+
+ in terraform we have 2 methods 
+ we say how and what to do to in procedural ways
+ in decelerative we only give what to do as IAC
+ 
+ terraform always works on what is requried state(actual state) and what is desired state, it ensures that always maintain the desired state of the user
+ 
+ the deployment can be done in
+ Vm ware,onpremisis,openstack and cloud/ virtual environment
+and not only terraform we have Iac as a service by cloud providers:
+Azure-ARM template
+AWS-cloudformation
+Gcp-Gcloud SDK 
+
+Application basically require  Servers, databases,websites,
+what ever environment we are running our application we need to have infrastracture
+* Terraform deployment can be done in 2 ways that are
+  1. Procedural approch : powershell,bash command line it is not that dynamic in nature and /we say how to do and what to do
+  2. Decelarative approch: decrlerative approch is very much dynamic in nature and /we only say what to do . we call them as  terraform-templates 
+
+templates:
+-----------
+ Template can be resuable extreamly that you can use that template to multiple environment(DEV, QA, UAT, TEST)
+ Template are like predefined
+ * whole archicture is defined as the form of template to pass the values dynamically, the make the point of archicture easy
+ 
+ Terraform: information
+ -----------------------
+* terraform is a opensource tool that is develped by the hashicorp that can create infra in any virtual cloud by IaC
+* The language that terraform uses to express the desired state is called (Hashicorp Configuration Language) HCL
+* we need to express some thing to configure those environment  
+  1 operating system
+  2. ram/cpu config
+  3. storage.
+  4. scripts to install software.
+  terms:
+* Define your infrastracture as template in terraform
+* and when we execute the template then the infrastracture is created
+Resource: The infra that you what to create
+Provider: The resource where you what to create
+arguments: the values you pass in the template for Iac
+attributes: the outcomes/output by the terraform 
+
+terraform installation refer docs https://developer.hashicorp.com/terraform/downloads
+ the following commands to run terraform
+ 
+ Terraform init: it provides req plugins creates a terraform.lock.hcl/download the provider
+ Terraform validate: to validate the template before creating infra
+ Terraform apply: To apply the desired state in Template to deploy the resource in desired provider
+ 
+ What actually terraform does:
+  the terraform work in the process of making desired state to actual state 
+  we express the desire state in template(declerative) formate (HCL) desired and terraform works on the template using the infra-provisioning tools it c
+creates the infrastracture which is idempotent
+Actual state = desired state
+---
+NOte: using azure/aws cli or power shell  may not be idempotent here we pass the desired state in the form of commands which are not reusable and 
+not that dynamic  we state where to do and how to do 
+----
+ 
+ * For infra-provisioning we need a template the actually creates the desired state 
+ * thre are two popular tools
+   # terraform /larege user base
+   # plumin
+   
+HCL template formate that terraform accepts the template
+
+template sample
+
+provider template
+---------------------------
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  accesskey=
+  secretkey=
+  region = "us-east-1"
+}
+-------------------------------------
+
+adding resource to the s3 bucket
+
+resource "<aws_s3_bucket>(any resource ref from doc)" "<name of the resource>"{
+   <pass arguments> = "values"
+   tags{
+   "key" = "value"
+   }
+   
+} 
+
+creating the s3 bucket through manually in the cloud console
+1. login into aws console
+2. nagivate to s3
+3. create bucket with unique name 
+4. and select region and create bucket
+----------------------------------------------------
+
+s3 sample 
+
+terraform{
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+resource "aws_s3_bucket" "mys3busket" {
+    bucket = "mys3busket1"
+
+    tags = {
+      "name" = "storage_busket"
+      "env" = "test"
+    }
+  
+}
+
+resource "aws_s3_busket_acl" "example_busket_acl" {
+    bucket = "aws_s3_bucket.mys3busket.id"
+    acl = "private"
+}
+-------------------------------------------------
+
+ above script is called template written in HCL language
+ 
+ we execute the script 1 time or the 100th time we will get the same results and this is called idempotent in nature\
+ this is the way that terraform deals with templates and we dont tell how to do we tell what things to do
+ 
+ terraform installation:
+ ------------------------
+ chocklety: choco install terraform -y 
+ if alredy exists and want to upgrade ; choco upgrade terraform -y 
+ 
+ 
+ 
+ Creating same s3 on terraform using template
+ 
+ above at 123 line we have template for s3 bucket with ACL (access control list)
+ 
+ now we write down the parts that are required for the creation on s3 bucket template:
+  1st and foremost provider
+  --------------------
+  Provider: it tells terraform that where do you want to create the infra, and generelly we have authentication process with detaile
+              like access keys, and secrete keys
+###note: we can provide those keys directly at template level which is not that secure thing to do,another way configure and pass those values inthe terminal
+so that it make nore secure, because most of the templates will be stored in the repositeres so chance of loosing the credientials###
+ 
+we use any cloud provider for that provider all just need the credientials and what do you want
+
+2nd Resource
+-------------
+Resource is which we create ,that is the infra component, while creating resource we need to pass some arguments:are inputs we pass to create the infra
+
+After passing arguments and exucute then we get attributes those are outcome of the arguments in the template and we pass those attributes to other resources
+those require for creating that resources (depands on)
+,
+To get those provide docs along with <terraform +<cloud we use>+provider>
+
+***terraform aws provider***
+
+https://registry.terraform.io/providers/hashicorp/aws/latest/docs
+
+by following those references in the docs and pass the inputs and to search for the resource we have code no directly passsing names of the resources
+
+ configration of the authentication
+ ---------------------------------------
+ Before configuring the provider we need to authenticate the aws
+ 
+ to authencticate we need access and secreat keys 
+ getti those keys
+ 
+ login into aws console and nagivate to IAM (Idendity access management)
+
+   add user>create user>access key(progmatic access key)>attach existing policy and create user 
+   
+   Open the IAM console at https://console.aws.amazon.com/iam/.
+
+On the navigation menu, choose Users.
+
+Choose your IAM user name (not the check box).
+
+Open the Security credentials tab, and then choose Create access key.
+
+To see the new access key, choose Show. Your credentials resemble the following:
+
+Access key ID: <AKIAIOSFODNN7EXAMPLE>
+
+Secret access key: <wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY>
+
+-------------------------------------------------------     
+ after executing the authentication 
+ then create the folder <terraform_tf>
+ and cd into the folder and create and file with <.tf> extension for terraform and 
+  open the terminal in (visual studio code)
+   and execute the template
+   
+   First terraform init :then the provider is downloded (.exe) gets downloded and it gives the terraform provider gets into system/.terraform exe(executable file) contains 
+   info about the provider and whole logs in it
+         terraform validate: this ensure checking the template formate without syntatical errors and configuration being validated or not
+		 terraform apply: this command executes the template and creates the infra /desired state /resources 
+		 
+		 that creation part is taken care by the terraform and we dont bother how it creates and we only look over the resources required/desired state 
+		 is created or not
+
+Terraform works in the process that when we install terraform in your system and , create the template and apply init > provider gets downloaded and (exe) file
+(.terraform) gets downloaded it has the provider details and now the knows how to creta the resources in aws
+ 
+ Note: Terraform don't know to create provider it only knows to call the provider
+ 
+ Tags
+ ----
+ static tags are for bucket
+ metadat are for the resources
+ 
+ IMPORTANT NOTE:
+ 
+ Changes are one of the task to be done
+ some changes are easy and some are difficult, some times you need to update them and sometimes you nedd to delete and recreate the resources(downtime occurs)
+  terraform to maintain the desired state it sometime creates/delete/update the resources
+  
+  
+  Authentication of the Aws CLI:
+  ---------------------------------
+  TO configure aws cli in your system install "aws cli" "choco install awscli -y" 
+  
+  ,and in terminal run as administration and do installation, later configure keys from iam user by , "aws configure" and provide access and secreat keys,
+   
+   Those credientials are stored in the home directory" <home-dir/.aws/credientials>" when ever terraform cretes the resources it picks from ther.
+   
+   Deleting the resources:
+   -------------------------
+   terraform has way to delete the resources "terraform destroy" to delete all the resources.
+
+
+
+now we make this temnplates some dynamic/reuseble way 
+-----------------------------------------------------
+
+now we create 2 tf files main.tf/provider.tf here main.tf we have all the resources details and provider.tf for provider details
+ so we can use those files for multiple templates/resource creations by changeing the values or other different resources with same provider file
+
+in provider file we can configure provider details and iam/access and secret keys
+
+now using this senerio lets create one template for vpc/networking resource
+
+Provider.tf
+------------
+
+Terraform{
+  required_provider{
+     aws = {
+	 source = "hashicorp/aws"
+	 version= "*.*.*"
+	 }
+    
+  }
+} 
+provider "aws" {
+  secretkey = 
+  accesskey =
+  region =
+}
+
+ main.tf/resources (take reference from the terraform/aws provider docs for arguments)
+ -----------------
+ resource "aws_vpc" "my-vpc"{
+   cidr_block = "172.168.0.0/16"           ### we can pass those values explicetly or driven by the IPAM (IPV4_netmask_length)
+    tags = {
+	name = "my-vpc"
+   }
+ }
+ ------------
+ 
+ when we apply the template /resource creation we get some information about resource with (+,-,) 
+ 
+ + indicates creation of the resource
+ - indicates delition of the resource
+ 
+ +(green)
+ -(red)
+  we also get yellow colour for the resources which are updating
+  -------------------------------------
+  
+  
+  What is infra provisioning?
+Provisioning is the process of creating and setting up IT infrastructure,
+and includes the steps required to manage user and system access to various resources. 
+
+Provisioning is an early stage in the deployment of servers, applications, network components, storage, edge devices, and more.
+
+configuring aws keys:
+
+when we configure keys we are storing them in the aws folder not in the template, no one knows the keys in the crediential files.
+ so we can activate/inactivate when ever we need to utlize the resources.
+ 
+ ------------------
+ Parameters/variables
+ 
+ * making templates hard coding templates to dynamic in nature to make one infra as provisioning template to flexible
+ * we use tf script to diff environment
+ 
+      tf(same template to)  env
+	                        ----
+							Dev
+							test
+							QA
+							Production 
+							staging
+
+* We have same template , but need to be flexible
+* we need to change the values in the template for reusing for diff environment that's flexibility
+* we want to add flexibility to the template by parameters/variables
+* but coming to terraform we cannot call that flexibility of passing the values to the resources as arguments , we call them as the parameters/ variables
+* we need to understand order of creation
+* this is the purpose of( tfstate file) in the (.terraform )
+* so by using this variables we can create resources by using any provider
+
+terraform HCL language
+----------------
+
+terraform is using HCL hashicorp language , it is not the coding language because in codeing we tell how to create , but in this we only state what we want desired state.
+
+
+
+----------------
+* as we understood the process of creating a template and using that template i can create the infrastracture
+* we must know the manual steps before writing the template so we can know the order of creation
+* so we can get things like where to create the resource and the resource appeares when it get created
+* while configuring the provider i configure the credientials also so that where evere the resource you want it gets created
+
+After writing template we do init first so provider gets downloaded, after we validate to verify the template and , fmt to arrange the template formate, then apply the template
+so ut creates the resource in what ever provider and arguments which you have passed.
+
+* if you want the creation automate withiout asking for approvel then "terraform apply -autoapprovel"
+
+
+problems faced 1: fixed names for templates
+------------------------------------------
+* In the template we created ,is configured directly with fixed values and there is no flexebility , the resource will be created with the same configration
+all the time .
+* we need flexebility where the users need to pass the values while creating the infrastracture.
+* we face problems like , we pass only one region so we need to pass multiple regions of our choice
+
+Variables:
+----------
+Probider "aws"{
+  region = "ap_south_1"
+  
+} 
+
+*above syntax we can only use one region all the time , if we want to change the region we need to change the template, changing the template is 
+ no good idea, but we have to pass the values that are valied for the aws/azure/aws
+* This can be achived only by variables in the terraform
+* In terraform we pass variables we call it as "input variables" 
+* in variables  we have type&default
+we have syntax
+
+variable "<name of the variable>" {
+  type= "<type of variable>"
+  default="<default value >"
+}
+
+Type of variable= string
+                  boolen
+				  number
+
+To write the file with the variables we use "inputs.tf" 
+while passing the provider in the templates arguments we pass tha values directly but now we pass the values in the inputs file and 
+in the template place of resource we write "var.<variable name>"
+
+provider.tf
+-------------
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "var.target_region"
+}
+
+main.tf
+--------
+resource "aws_vpc" "my_vpc" {
+  cidr_block = "10.10.0.0/16"
+  tags = {
+    "name" = "my_vpc"
+  }
+
+}
+resource "aws_subnet" "mysubnet1" {
+  vpc_id     = aws_vpc.my_vpc.id
+  cidr_block = "10.10.0.0/24"
+  depends_on = [
+    aws_vpc.my_vpc
+  ]
+
+}
+resource "aws_subnet" "mysubnet2" {
+  vpc_id     = aws_vpc.my_vpc.id
+  cidr_block = "10.10.1.0/24"
+  depends_on = [
+    aws_subnet.mysubnet1
+  ]
+}
+
+inputs.tf
+----------
+variable "target_region" {
+  type    = string
+  default = "ap_south_1"
+}
+variable "region1" {
+  type    = string
+  default = "us_east_1"
+
+}
+----------------------
+
+note: default value should be passed for mandatory use
+
+because we dont allow users to pass the default values while applying the  
+* if we give variable we get one option.
+* i can make use to create the region of user choice without changing the template through variables
+
+Variables on command line
+------------------
+* We need to pass the default values of the variables in inputs, other we need to pass those values every time while executing the template through command
+to automate the values that not given
+
+"terraform apply -var="<nameofvariable>=<value>""
+ 
+ *this is used when the default value is not passed , the resource is created in desired state but this is no that sensible approch, 
+ because credientials in the cli is much safer than having them in the template.
+ * but without writhing default value writing the "-var" make bunch of commands and those are not dynamic way to pass the values and not much sensable and reuseble
+ approch
+ 
+ * to avoid this we pass the the values in "<env>.tfvar" file ,Env= qa
+                                                                    dev 
+																	qat 
+																	test
+
+example:
+
+
+dev.tfvar
+---------
+<name of the variable> = "value"
+ to call that approch
+ 
+ we apply " terraform apply -var-file ".\dev.tfvars" -auto-approve"
+ 
+ * all the values in one file and use the abbove command
+ 
+ * lets create a tfvar file to pass the values over ther
+ * and whatever values you want pass them in tfvar and apply the command
+ no we can create different env and call those env tfvars
+ 
+ There are 3 ways to pass the values
+ 1. diractly pass the values in the variables and call them
+ 2. without passing default value and call/passing through cli command "-var"
+ 3. using "tfvar file" and passing the values and calling than .tfvar file 
+ 
+ so you can change the values from env to env dynamically , and reusabality of the template increasess
+ provider.tf
+ ------------
+ terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "var.region"
+}
+ 
+ main.tf
+ ---------
+ resource "aws_vpc" "my_vpc" {
+  cidr_block = var.vpc_range
+  tags = {
+    "name" = "my_vpc"
+  }
+
+}
+resource "aws_subnet" "mysubnet1" {
+  vpc_id     = aws_vpc.my_vpc.id
+  cidr_block = "10.10.0.0/24"
+  depends_on = [
+    aws_vpc.my_vpc
+  ]
+
+}
+resource "aws_subnet" "mysubnet2" {
+  vpc_id     = aws_vpc.my_vpc.id
+  cidr_block = "10.10.1.0/24"
+  depends_on = [
+    aws_subnet.mysubnet1
+  ]
+}
+ 
+ inputs.tf
+ -----------
+ variable "region" {
+  type    = string
+}
+
+variable "vpc_range"{
+    type = string
+}
+
+dev.tfvars
+-------------
+region = "ap-south-2"
+vpc_range = "10.10.0.0/16"
+
+---------------------------------
+ * Variables are at local 
+ * we can pass the variables and create the template reuseable and 
+ * passing those values in the variable file to apply those we use -var command
+ * writting so many variables may cause problem 
+ * so we define (.tfvars)
+ 
+ Terraform order of creation
+ ---------------------------
+* When you apply command terraform has some order to check the file and create those resources
+* terraform creates the resources by Arguments passed , terraform searches all the files in the folder
+
+the search is in the following order
+
+  [terraform folder] 
+  
+  |- main.tf
+  |- provider.tf
+  |- inputs.tf
+  |- <>.tfvars
+   
+when we try to apply then terraform trys to combine all the files with (.tf extansion) and combine all of them into one file and creates resource
+then the provider is on and how and what pattern resources created that handels by the terraform.
+
+Resource creation there are 2 types of dependences
+
+1. implicit dependences
+2. explicit dependences
+
+terraform creates the resources based on dependences
+A 
+ B
+  C depends on b
+   D depends on c
+    
+here A,B does't depend on any on so they are created parellely and then C created and Then D is created, so it creates based on the dependences
+if there is no dependences for all the resources it creates all of them at once.
+
+NOTE:
+Terraform basically creates the resources based on (.tf) files not based on any kind of formate, Those fiels combies creates resource
+
+Implicit Dependences:
+----------------------
+* the inputs of the dependences are arguments and outputs as arguments
+* here implicit way is that, when a resource is depending on the attributesof the other resource to create.
+
+we take the exameple of vpc for now
+
+vpc when created it has cidr_rage is passed arguments and its attribute is vpc_id that is the attribute of the vpc, and that id is the argument for
+ the subnets to create that is called implicet dependency
+
+Example:
+
+* Here the creation of the subnets can be done in two ways
+first create vpc template and create vpc and then bring that vpc-id and create subnets lengthy process.
+
+* so we came up with the concept of attributes menas after arguments success depends on that attribute other resource is created "implicet dependency"
+
+example:
+--------
+esource "aws_vpc" "my_vpc" {
+  cidr_block = var.vpc_range
+  tags = {
+    "name" = "my_vpc"
+  }
+
+}
+resource "aws_subnet" "mysubnet1" {
+  vpc_id     = aws_vpc.my_vpc.id
+  cidr_block = "10.10.0.0/24"
+ }  
+ 
+ ------------
+ 
+ *to create the vpc we need attributes of the vpc, this vpc id is known when it is apply is done
+ * the implicit dependency flows in this order for creation 
+ * it happens when the genune resource flow happens with the attributes and if main resource in not created other resources stops creating the resources
+* so we can conclude that, implicit depencency uses one resource attributes as the other resource inputs/ arguments
+i.e: arguments to other resources will create implict dependency.
+
+if all the other resources have one dependency  or attribute as the argument all starts creating at once.
+
+
+Explict dependency:
+-------------------
+
+* Explict dependencie menas depending on the other resource to get created/previous resource
+* It depends on the other resource to get created and its attributes will be the arguments of the next resource
+* It creates the resource one after the other in flow that maintain order of creation
+* implict gets created only when genune resource created
+* Explict created when previous resource created
+
+depands on:
+
+resource "aws_vpc" "my_vpc" {
+  cidr_block = var.vpc_range
+  tags = {
+    "name" = "my_vpc"
+  }
+
+}
+resource "aws_subnet" "mysubnet1" {
+  vpc_id     = aws_vpc.my_vpc.id
+  cidr_block = "10.10.0.0/24"
+  depends_on = [
+    aws_vpc.my_vpc
+  ]
+
+}
+resource "aws_subnet" "mysubnet2" {
+  vpc_id     = aws_vpc.my_vpc.id
+  cidr_block = "10.10.1.0/24"
+  depends_on = [
+    aws_subnet.mysubnet1
+  ]
+}
+
+* implict resource create in parllel but, explict they create one after another, and based on what depends on what.
+* we can make implict into explict so every one can under stand the order of creation easely.
+* comming to delation/destroy part it happens in opposite way that first resources that have most dependencys and then no depencencys.
+
+< resourcetype.resourcename.attribute name>
+
+output of the resource is called attribute.
+
+-----------------------------------------------
+
+Looping/count:
+
+ here we have an activity to define the looping concept 
+ 
+ exercise:
+ 
+ try to create vpc with 6 subnets
+ sol:
+ we have 2 choices that are
+ * we can write 6 subnets in template and use implict/explict concept
+ * and another one to make template more reusable and more dynamic, better way if we use the looping count:
+ 
+ looping we write the expression 
+ ex: if I in 1..6 
+  i can give print i 
+  
+If looping is used the resource creation can be simplify
+we can use for loop and write all of this.
+
+But we can also use "count"(meta-data) to create multiple resources
+ 
+ difference between loop/count:
+ --------------------------------
+ The count meta-argument is the simplest of the looping constructs within Terraform. 
+ By either directly assigning a whole number or using the length function on a list or map variable, 
+ Terraform creates this number of resources based on the resource block it is assigned to.
+ 
+""
+resource "resource_type" "nameofresource"{
+  count = <no of resources>
+  arg1 = val1
+  
+  argn = valn
+}
+
+Count Expression: count expression can be give with some conditions
+* IF you want to create resource or not can be controlled by using the count parameters/
+
+* it can be given on conditions
+counts can be passed based on the  conditions.
+
+Deployment strategies:
+------------------
+there are 2 types of deployment strategies:
+
+* red-green/blue-green
+* canary deployment
+
+Red-green Deployment:
+-----------------------
+
+Here previously to deploy or to update new version there comes big problem with down-time, so there is solution for that is red-green or canary deployment
+strategy
+Here we have 2 evs
+
+  Red Env                         Green Env
+  infrastracture               same qualitys and softwares as red
+  resources                    when the update comes they deploy new verson in this and users  
+  application running          use this env traffic will be diverted to this env and then other one will get updated
+  users are using this env
+  this has an update then>>
+  
+  This strategies make the deployment easy and make application more efficient and reduces the downtime
+  
+  
+  Ntire architecture:
+  ----------------------
+  
+  * any application need database to store the data of the application
+  
+  There are two types of databases
+  
+  Reration database: 
+  ---------------------
+  this tha formate where the data is stored in rows&coloums and it has strict stracture the stracture is called "schema"
+  schema is stracture of your table
+  
+  2nd one No-sql database
+  ------------------------
+  This is schema that has no such strict stracture like relational database/  Mangodb etc 
+ 
+ Ntire-archicture
+ ------------
+  for every application we have dadabase layer which is private , in that layer all the data is stored,
+  to increase the perfomance of the database we add cache layer radis software(VmWare) , so that Infrequent data is store in ram, and frequent data in disk
+  * here infrequent data stores in radis,
+  * when ever we go to website and call the application and it goes through
+   weblayer calls > application layer> query to databaselayer
+   
+   Application layer is business logic layer and weblayer is presentation layer
+   
+   (BCDR) Business contunity and Desaster Recovery model:
+   ============================================================
+   * we host all the layers in data centers 
+   * if we have 2 datacenters and if one is down another one can be used, but in case of database it cannot happen because data the user get should be 
+   same .
+   * app/web layer no need for connection but the data base layer need connectivity
+   
+   Thread:
+   --------
+   Helps running the code parellely on 2 diff datacenters and provide service to all the users all the time without downtime, but data based 
+   cannot be sealed because we cannot store multiple copies of data every time , to give connectivity we use replica set, it ensures data is same.
+ 
+ Elasticity:
+ ----------
+ To support the peak demand or the variable demand we need scale the servers
+ Scaleout: when there is heavy traffic hitting we need to scale up the servers
+ Scalein: When there is less traffic then we scale in the servers.
+ 
+ General configration:
+ ---------------------
+ Public Ip:
+ * public ips connect to server can connect from any where.
+ * punlic network can allows to connect to the internet
+ * you can access them from anywhere there is internet
+ 
+ Private IP's
+ -------------
+ Private IP's are only for particular network
+ They can be acced only within in the network. and they are deployed in the private network
+*required servers are  given public access those are web servers remaining PP/DB have private , user can only access  web server and it calls the
+ app/ and that raise query to the DB.
+ 
+ 
+ creating the archicture :
+ --------------------------
+* We want to create the archicture we need to create the servers on back wards.
+* Because it depends on one another
+* in terraform less depencency resources creates first and goes on
+* first network>>database>>application_server>> webserver
+* all of these resources are on the Vm's
+
+Private IP have reserved ip ranges
+refe "https://www.ibm.com/docs/en/networkmanager/4.2.0?topic=translation-private-address-ranges"
+
+first archicture part is to select region to launch the instance, to have low latency, near to the operating location
+
+DB(data base) cloude is providing database as a service RDS and they made easy of using the data base directly selecting the req db and network ,
+without much worried about the softwares.
+        
+Ntire for AWS:
+-------------
+In aws create a vpc or use default vpc, 
+here we need services for the Ntire archicture is 
+1.network with private access and /some subnets with public those are exposed to public/internet
+2.then data base we have RDS service for data base in aws which is simplified and not bother of maintainence and software instllations and upgrades
+aws handels every thing
+3. Then the application server for that launch aws ec2 ubuntu server and from vpc assign one private subnet to the server to launch the application
+in that server , to run these should not be exposed to the internet
+4. after the application instance launch web instalce assign public access subnet to that instance that is the exposed part of the application where
+presentation of the application will be done, user can access to this layer 
+Aws is region specific.
+ 
+ Creation of DB manually:
+ DB-> aws console->RDS->mysql->version->DB name->username->password->size of db->size and connectivity
+ Note:aloctaion size in aws 20 is minimum size in aws 
+      enable auto scaling means when it req it will increase automatically 
+	  connectivity: default vpc/created, which subnet to be used , no public access(in case to check the connectivity ve can enable public access)
+
+Security Group:]
+we next main focus on the security group, that which ports need to be open or which or not
+Application, db have no ports to be open to acces to the internet, only web have the access 
+Network:
+App subnet disable public ip
+Web subnet enable public ip
+
+so i cerate the resource by usind DB/Ec2 and network and security groups, no without cloud we need to set up servers and install softwares and lot of manual 
+work attached to it.
+but cloud has no issues such as above case , they deal with all the things and we need to worry about the desired state, it also make reuseable of scripts
+to launch in multiple regions. and it can be flexible by elasticity
+
+IN azure we have terraform as service that is(ARM) templates here network is created first
+in aws we have aws cloud formation here db created first
+ 
+ using count variable in terraform templete to create vpc and subnets:
+ ------------------------------------------------------------------------
+ using Ntire architecture  with count variabel
+ 
+ Template:
+ -> provider.tf
+ ->main.tf
+ ->inputs.tf
+ ->dev.tfvars
+ 
+ Provider.tf:
+ terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+    region = var.region
+  
+}
+
+
+resource.tf
+------------
+resource "aws_vpc" "ntirevpc" {
+    cidr_block = var.cidr_block
+    tags = {
+      "key" = "ntire"
+    }
+  
+}
+resource "aws_subnet" "sub1" {
+    count = length(var.cidr_block_sub)
+    vpc_id = aws_vpc.ntirevpc.id
+    cidr_block = var.cidr_block_sub[count.index]
+    availability_zone = var.availability_zone[count.index]
+    tags = {
+      "key" = var.tags_names[count.index]
+    }
+}
+
+ 
+ Inputs.tf
+ -------------
+ variable "region" {
+    type = string
+  
+}
+variable "cidr_block" {
+    type = string
+  
+}
+variable "cidr_block_sub" {
+    type = list(string)
+  
+}
+variable "tags_names" {
+    type = list(string)
+  
+}
+variable "availability_zone" {
+    type = list(string)
+  
+}
+
+dev.tfvars
+--------------
+region            = "ap-south-1"
+cidr_block        = "172.168.0.0/16"
+cidr_block_sub    = ["172.168.0.0/24","172.168.1.0/24","172.168.2.0/24","172.168.3.0/24","172.168.4.0/24",]
+tags_names        = [ "sub","sub1","sub2","sub3","sub4" ]
+availability_zone    = ["ap-south-1a","ap-south-1b","ap-south-1c","ap-south-1a","ap-south-1b","ap-south-1c"]
+ 
+ "terraformapply -var-filr ./dev.tfvars"
+ ---------------------------------
+ Blocks in terraform:
+*Terraform block is used for setting the version of the terraform we want. It may also contain required_providers block 
+ inside which specifies the versions of the providers we need as well as where Terraform should download these providers from..
+* Block is the cntainer for other content, generally what ever we write in the {} are called blocks.
+
+To use the Provider with specific Version
+--------------------------------------------
+
+Refer the documents for the versions 
+usually companies deal with the versions of AWS provider
+every provider have different versions and adding version to the provider is the additional syntax
+
+syntax:
+--------
+terraform{
+  required_provider{
+    aws = {
+	  source = "hashicorp/aws"
+	  version = "-> 4.0"
+	}
+  }
+---------
+when ever we work with the resource the version  4.0.1 version "->4.0"
+4-> major
+1->minor
+so we try to know how to deal with versions
+now we have some notations for the versions 
+
+"->4.0.1" iam ok with minor change but nit the major change
+"=4.0" i need particular version not less/more.
+">= 4.0.1" greater than or equal to that version.
+"<= 4.0.1" less than or equal to that version.
+
+version change is the change in new set of fetures and in dev env its ok with the chnages but in production it may not work.
+--------------------
+procider.tf
+main/resource.tf
+inputs.tf
+dev.tfvars
+
+when we apply this template terraform apply -var-file "./dev.tfvars"
+
+then resource gets created and , if we add some changes they will be updated and creted with same change or updated
+
+* when we done the same thing in the console directly with cidr's or vpcs once allocated cannot be changed but with terraform we can update the resources
+those updates resources are seen in yellow colour.
+* when red it means it got delated or replaced  the resource
+
+* to print values for loop we use 
+
+"Count.index {which starts form 0} 
+when ever we are trying to write the expression we use only count expressions
+we have some terraform functions to make the template more flexible 
+
+Terraform functions:
+---------------------
+list: list is colletion of functions
+
+https://developer.hashicorp.com/terraform/language/functions"
+
+for no of subnets created or no of resources to create we use count variable that directly provide the valued to no of resources
+
+to make it more flexeble we use functions have some built in functions that are passed through some expression
+
+lenght function
+in cmd line type "terraform console"
+in that pass this expression lenght([1,2,3,4])
+it says 4
+so why we pass the count directily when we need to increase the count we need to pass in side the resource to change ,
+
+we should make it more flexeble that we need to pass the expression/or functions in tempalte so which take from the list of variables directly
+so that we pass the count argument as length(var.subnet_cidr) more flexeble than count.
+we use length function to find the length of the subnets from variables file
+setting the count based on the list
+terraform reads all the files which have .tf extansion
+Variable file read (.tfvars) so no rel with template,in variable we cannot pass the expressions so we pass values.
+but if we go to the functions IP function,CIDR function to dynamically
+by using the functions we can pass the values dynamically, we need to check suitable values and pass them by checking in terraform console
+
+https://developer.hashicorp.com/terraform/language/functions/range
+
+Variables :
+----------
+IN variables we can also pass the variables we are passing new type which is object
+variable{
+  type = object
+ 
+}
+by object we can pass multiple values at one time, rather than giving multiple variables we can create one variable and pass the multiple variable values.
+
+object = name value pair/key
+we can write multiple variables using the object
+example #Storage Account Config - List of Objects (Each object represents a storage config)
+variable "storage_config" {
+  type = list(object({
+    name                      = string
+    account_kind              = string
+    account_tier              = string
+    account_replication_type  = string
+    access_tier               = string
+    enable_https_traffic_only = bool
+    min_tls_version           = string
+    is_hns_enabled            = bool
+  }))
+}
+
+its a new input type that you can add multiple variables in one input
+
+Terraform plan:
+----------------
+plan before file a file gets created , in that file we have how to create the terraform infra stracture
+
+.tf state file
+---------------
+it has the json fromate of what terraform template creates
+
+backup.tf state file
+------------
+it stores all the backup of the previous template or resource , to go back for when we require , it was created by the terrafiorm when we do apply in terraform
+
+
+template which we have deployed reusable:
+----------------------------------------
+reusabality is essential as we follow the principle of DRY(dont't repeat yourself)
+terraform to use reusabality we need to create modules
+ activity:
+ -----------
+ example/ sample module useage form some ones or existing. those modules are created by the communits and terraform stores them in terraform registary
+ "https://registry.terraform.io/browse/modules"
+ 
+ lets create the sample module template terraform aws registary
+ 
+ module "vpc" {
+    source = "terraform-aws-modules/vpc/aws"
+    name = "ntier-vpc"
+    cidr = "192.168.0.0/16"
+    azs = ["us-west-2a", "us-west-2b" ]
+    private_subnets = ["192.168.0.0/24", "192.168.1.0/24"]
+    public_subnets = ["192.168.2.0/24", "192.168.3.0/24"]
+    enable_nat_gateway = false
+    enable_vpn_gateway = false
+    tags = {
+        Terraform = "true"
+        Environment = "dev"
+    }
+
+}  # from terraform registary
+
+to this we write provider:
+
+# provider for aws
+
+terraform {
+  required_provider{
+     aws = {
+	   source = "hashicorp/aws"
+	   version = ">=4.0"
+	 }
+  }
+}
+
+provider "aws"{
+  region = "ap-south-1"
+}
+
+* we are not writing the whole template we are reusing someone's ,reusing the existing terraform template which is module, 
+module is nothing but giving correct inputs and getting correct outpts 
+ Resource we pass
+  * arguments
+  * attributes
+  
+ module we pass
+  * input vars=arguments
+  * outputs=attributes
+  
+* resource can create only what it can do upto limited,in module we write inputvars as arguments 
+* we get output attribute, and we can use the template multiple times,
+we i apply terraform module file gets downloded and we have all the information about modules gets stored in that folder.
+
+Things required to make our template reuseable:
+-------------------------------------------------
+Outputs:
+-------------
+terraform output is what you want to show to the user.
+
+output.tf:
+----------
+attributes of the resource, that prints list of all and all.
+
+outputs:
+---------
+Terraform will display what ever is created and prints the values all the time when ever we apply terraform.
+
+Module:
+-------
+A module is a container for multiple resources that are used together. Every Terraform configuration has at least one module, known as its root 
+module,which consists of the resources defined in the . tf files in the main working directory.
+provider belongs to template and .tf var also belongs to template
+
+ we have default tree stracture
+ 
+ module is nothing but combination of provider and .tf files expect tfvars and provider,
+ 
+ there are 3 type of modules.
+ ---------------------------
+ 1)root module:
+   -----------
+   * any terraform folder/directory with .tf files those were we can execute the terraform as root-module.
+   * any configuration file within the directory is called module.
+   * terraform module group the resources and latter they reuse the group many times
+   
+ 2)child module:
+ --------------
+ * custome modules are called as "child modules"
+ * add configuration file where we call child module relates to the root module.
+ * The module that child can be from local or remote repository or published ones or can be http url that consists of resource module file.
+ * A module file is setof configuration files in a single directory, Even singke directory with one or more .tf files is a module
+
+* basically modules work in the form that all the configuration files in one folder except .tfvars and provider those are belongs to the template
+so they are passed in another way
+* in another folder we have module file and we call that file using variables /more reuseability
+* and we have diffrent types where source of module file can be it can be from
+
+1. Local paths
+
+2. Terraform Registry
+
+3. GitHub
+
+4. Bitbucket
+
+5. Generic Git, Mercurial repositories
+
+6. HTTP URLs
+
+7. S3 buckets
+
+8. GCS buckets
+
+9. Modules in Package Sub-directories 
+
+
+how to use module file:
+-----------------------
+
+Write a module template from repository place the url of what ever source code in that module file and pass other values.
+ and call the resource
+dynamic as possible to make it reuseable.
+
+Note: local module is also a commit
+
+
+module.tf
+-------------
+
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "3.19.0"
+} 
+ 
+ provider.tf
+ 
+ and 
+ 
+ .tfvars in same folder and 
+ 
+ module source from andy parts given above. and that mode can be seen from gihub or the local frolder in .terraform folder module gets downloaded
+ 
+ ---------------------------
+ 
+ 
+ Outputs
+ -------
+ 
+Output values make information about your infrastructure available on the command line, and can expose information for other Terraform configurations 
+to use.
+Output values are similar to return values in programming languages.
+it is what you want to display to the user
+
+Output values have several uses:
+
+* A child module can use outputs to expose a subset of its resource attributes to a parent module.
+* A root module can use outputs to print certain values in the CLI output after running terraform apply.
+* When using remote state, root module outputs can be accessed by other configurations via a terraform_remote_state data source.
+* Resource instances managed by Terraform each export attributes whose values can be used elsewhere in configuration. 
+* Output values are a way to expose some of that information to the user of your module.
+
+sample output values passing:
+
+output "instance_ip_addr" {
+  value = aws_instance.server.private_ip
+}
+
+changing in the outp does't mean u r changing the infrastracture we are changing what you want to show the user
+it basically displays what we have created
+
+
+Data sources:
+--------------
+In terraform we have providers and resources, In terraform we have diff type of resources and we combine all of them we call it as module .
+Group of resources is called as module.
+
+* when ever we create a resource in terraform , some times we need some information about the resource created what is getting created.
+* Fetching some information  about resource in the provider it is like quearying the provider
+* By using the data source we can create generate the information in the provider
+"https://developer.hashicorp.com/terraform/language/data-sources" data source syntax reference
+
+* Data sources allow Terraform to use information defined outside of Terraform, defined by another separate Terraform configuration,
+ or modified by functions.
+*
+sample datasource:
+---------------------
+provider.tf
+-----------
+
+resource.tf
+-----------
+now to create data source form doc terraform aws_vpc we have datasource coloume
+
+data "aws_vpd" "default"{
+  default = true
+}
+
+output "defaultvpc"{
+  value = data.aws_vpc.default.id
+}
+
+the following set is used to pull the default vpc id of any region and subnetids of any vpc from
+any availibility zone.
+
+
+Creating vpc with subnets and providing internet access to the  web subnets
+---------------------------------------------------------------------------
+
+In azure we have by default we get internet access but with the aws we don't get the access we need to do some extra work to enable the internet acess
+
+that is we need to create internet gate way(igw) and attach that gate way to the vpc and then create route tables.
+
+now route public subnets  to the igw and private to the subnets it self
+now we create the ntire articture with 6 subnets
+
+web1,web2,app1,app2,db1,db2
+
+web subnets have internet access and remaining all are private
+
+for this senario we can bring module(terraform vpc module),nd provider.tf and inputs.ts for (variables) and to define we write .tfvars
+modulevpc.tf
+-------------
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = var.vpc_name
+  cidr = var.vpc_cidr
+
+  azs             = var.azs
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
+
+  enable_nat_gateway = false
+  enable_vpn_gateway = false
+
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+  }
+
+
+}
+
+provider.tf
+=============
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region = "us-east-1"
+}
+
+inputs.tf
+-----------
+variable "region" {
+  type    = string
+  default = "ap-south-2"
+}
+variable "vpc_name" {
+  type = string
+
+
+}
+variable "vpc_cidr" {
+  type = string
+
+}
+variable "azs" {
+  type = list(string)
+
+}
+variable "private_subnets" {
+  type        = list(string)
+  description = "for private subnets"
+}
+variable "public_subnets" {
+  type = list(string)
+
+}
+
+dev.tfvars
+-------------
+region          = "ap-south-1"
+vpc_name        = "ntirevps"
+vpc_cidr        = "172.168.0.0/16"
+azs             = ["ap-south-1a", "ap-south-2a"]
+private_subnets = ["172.168.0.0/24", "172.168.1.0/24", "172.168.2.0/24"]
+public_subnets  = ["172.168.3.0/24", "172.168.4.0/24"]
+
+
+if we we want to pass the variable with function
+
+then cidrsubnet("172.168.0.0/16",8(bits to be passed),0)
+
+ * now we need to create a security group which has the ports 3306 because (my squl works on ) 3306 all the vpc rance (to all the subnets)
+ 
+ * inputs variable pass the inputs to avoid multiple times we give locals
+ 
+ locals.tf
+ --------
+ local{
+  az-a = formate(%sa,var.region)
+  az-b = formate(%sb,var.region)
+  my_sql = 3306
+  protocal = "tcp"
+ }
+ 
+ locals we use for defining the values not for passing the values. 
+ when ever you give database give 2 subnets to store in multipls regions/multiple subnets
+ * defining the values in the locals.tf to define the values which we use multiple times
+ 
+ all the constent values that are multiple times or make it more reusable
+ Attaching Security Group to the module:
+ =======================================
+ security.tf
+ 
+ 
+ 
+ 
+ --------------------
+ 
+ to create a database we need subnets and subnet group and db instance 
+ 
+ create vpc>the  create subnets> create security group>add subnetgroup>create db subnet group>create db instance
+ 
+ referhere for ntire archicturewith dbsubnets and subnet group :"https://github.com/Veerababu07/terraform-activity"
+ 
+ 
+ 
+ Terraform taint:
+----------------------
+Taint resource using the terraform:
+
+In terraform we have option called Taint.
+
+TAINT: when we apply to the resource resource gets created and during the next apply we want to delete and recreate the resource 
+-----
+
+It is like we created the resource and we want to delete and recreate the resource then we need taint the ressource in terraform.
+
+create simple template with vpc and subnets and after creating the resources and look at the resource and you want to delete and recreate one resource among that 
+
+like you have one subnet to be recreated and that will be recreated if tainted in terraform for next apply
+
+Example.
+---------
+Assume you have created one resource 6subnets you want to taint one subnet 4 the one
+
+there we type command "terraform taint aws_subnet.subnet[4]"
+next when you apply the resource it gets recreated.
+
+If you tainted the wrong resounce and you need to undo thad then "terraform untaint aws_subnet.subnet[4]"
+
+syntax reference for taint
+
+"terraform taint <resource_type>.<resourcename>"
+
+mostly the taint is used when the resource is misbehaving after created then that cases we use taint to recreate the resource and recreate.
+
+* while creating the ec2 we get some issues and we use taint to recreate the resources to rectify the issue in the creation 
+* with vm,DB creation we have missbehave issues. so we use taint to recerate the resources.
+* this approch is Pet(vs) cattel 
+* to unmark the resource tainted for replacement we can untaint the resource .its like undo the operations.
+
+Graphical Representation of the Resource creation:
+---------------------------------------------------
+In terraform we get graphical representation of the json formate into the graphical representation by installing the dot extension, we get graphical representation of the resource created
+
+* dot is good at visualization formate, to get the graphical representation of the resource in the template we get in to the template folder
+ template folder> and execute the command "terraform graph -type=plan>plan dot"
+  we get dot folder in the template and i that we can able to see the graphical representation of the resources that are gettion created
+  
+  Immutable infrastracture:
+  ----------------------
+  * the approch which we are following is the immutable way of creating the infrastracture and that,
+  
+  * any change in the infrastracture can be happen whne the changes that are happening in the template,that every change is stored in the V.C.S and 
+  every change will be stored and maintain the history, that is immutable way of dealing with the terraform
+ 
+ Import ways
+ --------------
+  * we also have the import way of doing the terraform templates which most of them don't follow the way because that is in reverse engeneering way where it dont 
+   follow any history
+   
+  * it follow the way that we create the resources directly in the aws console and forom that created resources we generate the templates ,
+   that is most useless process because reverse way of create the template ,when ever we need change that cannot be done in the template that change the resource firs
+   in the console and then generate the template
+   
+ 
+ Creating the ec2 instance with  templates/terraform:
+ 
+--------------------------------------------------------
+
+Manual steps required for the instance creation 
+
+console :
+ launch instance> ami-id>security groups> vpc> keypair>and launch instance
+ 
+ getting ami-id in the aws is tricky part , amil-id is different from region to region , so pass the values can be given to the user by writing variable to the ami in the temlate.
+ and in inputs file we can change the default value. or we can pass through the locals by defining the ami .
+  
+  variable "ami-id"{
+    type = string
+	description = 
+	default = "ami-of any region"(user defined)
+
+  }
+  
+  Dealing with the default by providing the "ami-id"
+   
+  * datasource also can be used to  generate the ami-id with.
+  
+data "aws_ami" "example" {
+  executable_users = ["self"]
+  most_recent      = true
+  name_regex       = "^myami-\\d{3}"
+  owners           = ["self"]
+
+  filter {
+    name   = "name"
+    values = ["myami-*"]
+  }
+  
+  
+  key pairs:
+  -----------
+ * key pairs can be default (optional) that we can use the existing one or we can create the new one and assign it to the resource
+ 
+ we can generate the existing keypairs in the region using the datasource
+ 
+ Datasource "aws_key_pair" {
+   key-name = "name of the key pair in the region" 
+ }
+  
+  for that  write outputs file to show the value
+  
+  output "aws_key_pair" {
+    data.aws_key_pair.<name>.id
+  }
+  
+  to use we used data source and we can manually pass through the resource
+  
+  sample template for passing through the template:
+  ===============================================
+  
+  resource "aws_key_pair" "deployer" {
+  key_name   = "deployer-key"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD3F6tyPEFEzV0LX3X8BsXdMsQz1x2cEikKDEY0aIj41qgxMCP/
+                 +EPuxIA4cDM4vzOqOkiMPhz5XK0whEjkVzTo4+S0puvDZuwIsdiW9mxhJc7tgBNL0cYlWSYVkz4G/fslNfRPW5mYAM4
+				 9f4fhtxPb5ok4Q2Lg9dPKVHO/Bgeu5woMc7RY0p1ej6D4CKFE6lymSDJpW0YHX/wqE9+cfEauh7xZcG0q9t2ta6F6fmX0agvp
+				 FyZo8aFbXeUBr7osSCJNgvavWbM/06niWrOvYX2xwWdhXmXSrbX8ZbabVohBK41 email@example.com"(this public key from ssh key gen id_rsd.pub)
+}
+ 
+ 
+ or we can pass the file (path) function from functions 
+ to generate/create  we can use "File-function"
+ 
+ Resource"aws_key_pair" "my_key"{
+   key_name = file(c:/users/**/ssh/id_rsa.pub) (path of the ssh file)
+   
+ }
+ 
+ Now to create security for the web
+ -------------------------------------
+ 
+ security.tf
+ 
+ resource "aws_security_group" "web_sg" {
+  description = "this is for the web application"
+  tags = {
+    "name" = "myweb_sg"
+  }
+  ingress {
+    cidr_blocks = [local.anywhere]
+    description = "for web server"
+    from_port   = local.http_port
+    #ipv6_cidr_blocks = [ "value" ]
+    #prefix_list_ids = [ "value" ]
+    protocol = local.tcp
+    #security_groups = [ "value" ]
+    #self = false
+    to_port = local.http_port
+  }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  vpc_id = module.vpc.vpc_id
+
+  depends_on = [
+    module.vpc
+  ]
+}
+
+we need to pass the ingress and egress to access the internet without egress in the  rules in the aws because aws cli have by default egress rule. but for template
+we cannot make it access to the internet.
+
+* to cvreate the ec2 we need vpc,subnets,security group, keypair, we have all of them in the template so we use them to the instance resource.
+
+template
+
+webserver.tf
+-------------
+
+resource "aws_instance" "mywebserver" {
+  ami                         = var.ami-id
+  vpc_security_group_ids      = [aws_security_group.web_sg.id]
+  instance_type               = "t2.micro"
+  associate_public_ip_address = "true"
+  subnet_id                  = module.vpc.public_subnets[0]
+  tags = {
+    "name" = "myec2_web_server"
+  }
+  depends_on = [
+    module.vpc,
+    aws_security_group.web_sg
+  ]
+}
+
+we can pass the values in the resource it self of we can pass through the local file to make it readable and resuable.
+
+* next after creating the instance we need to install the applivcation into the resource, terraform don't know how to manage those things, for that we need
+configration management tools like anseble, terraform knows to keep the desired state = actual state,
+* terraform don't know to install the scripts , it need some configration tool to automate the installation of the softwares and maintain the application on created
+resources.
+
+Terraform provisioning:
+----------------------
+Terraform includes the concept of provisioners as a measure of pragmatism, knowing that there are always certain behaviors that cannot be directly represented in Terraform's declarative model.
+
+* terraform provisioning is used to perform the extre operations after resource gets created, that could be executing the scripts
+  "https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax"
+  
+* In terraform we craete resources of instance like using the custome image, in any cloud we have custome image option where we can launch a  custome image where your softwares 
+are alredy installed.
+* but no one follows this process.
+In terraform  create a custome image in cloud and launch the ec2 instance with that ami-id and which have all the softwares alredy installed.
+* create a custome image before terraform 	template creation and by passing that ami-id we can create the ec2 instance.
+
+Creating Custome image:
+-------------------------
+
+* Creating custome image by going into the cosole, check wether we have alredy existing instance with soft ware installed and in actions select image , option and create image
+ in every cloud it has same feature, creating and launching the custome image an dnext time we can use that images custome ami-id for the resource creation
+* in Terraform we call Provisioning as last resort, Previously they use packer for the image creation now they use there own feture that is Provisioning.
+
+
+There are three type of provisioning:
+------------------------------------
+1.File Provisioning: This Provisioning is used to transfer files from local to remote
+2. Local-Exec: when we run the script in the local machine . it creates infrastracture in the remote machine, for any cloud 
+               , so local provisioning means executing script in the local machine, and it dosen't need an connection because it is present in the local machine.
+3. Remote.exec:
+remote access is where we execute the script in the remote machine on linux/windows where that machine is created . remote exec need connection
+there are 2 types of connections
+1. ssh connection for linux/unix
+2. winrm for windows 
+file provisioning need some sort of connection to connect with remote server for files transfer.
+
+---------------
+Now lets install nginx  serves in the ec2 instance . there are some commands to be run on the remote server for the installation.
+
+""
+#!/bin/bash (if shell script)
+bash (if there are commands)
+sudo apt update
+sudo apt install nginix -y 
+"""
+To launch the nginx in the created ec2 we need connection to the remote.exec
+
+activity:
+-------------
+Go to the template where the resource is alredy created and first taint the resource because after writing the provisioning script it need to recreate and install the script
+In provisioning the installation of the script only done when resource gets created , if we want to change and run it dont run the script again for that we have solution that is "null resource"
+For now we look running the script while creating the resource
+-> first taint the resource that is alredy created
+-> and go to the template where ec2 resource template is present
+-> write the provisioning for the script that need to be running
+-> for provisioning search in the documents "https://developer.hashicorp.com/terraform/language/resources/provisioners/syntax" script syntax
+-> we also need connection for the provisioner
+
+
+sample script:
+------------
+
+Provisioner "remote-exec" {
+  connection{
+    type = "ssh"
+	user = "ubuntu"
+	privatekey = file("~/.ssh/id_rsa")(here i used file function)
+	host = aws_instance.<nameof the resource>.public.ip
+	        / or self.public.ip
+  }
+provisioner "remote-exec" {
+    inline = [
+      "sudo apt update
+      "sudo apt install nginx -y"
+    ]
+  }
+}
+
+next in cmd execute 
+
+"terraform refresh -var-file=".\dev.tfvars" - to refresh the resource
+
+then taint the resource <aws_instance>
+ "terraform taint <aws_instance>.resource name>
+ 
+ Then apply terraform
+
+"terraform apply -var-file".\dev.tfvars"
+since all are created only ec2 should created .
+
+
+ self object
+ ------------
+ "Expressions in provisioner blocks cannot refer to their parent resource by name. Instead, they can use the special self object.
+
+The self object represents the provisioner's parent resource, and has all of that resource's attributes. For example,
+ use self.public_ip to reference an aws_instance's public_ip attribute."
+ 
+ * now we need to know that, if we run the provisioner it gets runs one time at the time of resource creation, after once the resource created and script executed, if you again apply
+ it won't run, to make it run we have some other way,
+ * terraform provisioner run only when the resource is created and by default it won't run every time , we need to taint the resource and update and recreate the resource.
+ * terraform dosen't  know the state of your provisioinig the resource it only knows the state of creating the resource.
+ 
+ * for the provisioning to generate the url we write the outputs
+ 
+ Outputs.tf
+ ------------
+ output "url" {
+   value = Formt("http://%s,aws_instance.<nameof resource>.public-ip")
+   
+ }
+
+Terraform provisioning will run only when the resource gets created,
+
+Try to make changes in the inline in terraform provisioning template, and apply but script will not be executed because we need to taint the resource,
+* and provisioning don't know the desired state of the remote.exec it only knows the desired state of the resources, no nothing will be executed
+
+* here recreating the resource means downtime in the resource , so it's ok in dev. but in production its not ok . so solution for this is problem "null resource"
+
+Null Resource
+____________
+
+the Null resource its self it a provider so null means nothing is created null provider  only running the scripts that have trigger and 
+what ever the content in the tigger changes resources starts executing the script.
+* In null resource create a trigger which maps to certain input from the user which triggers script execution.
+
+Null resource at the web server or instance template level.
+ 
+ Resource"null-resource" "web-trigger"{
+   trigger = {
+     "web" = var.webtrigger
+   }
+   Provisioner "remote-exec" {
+  connection{
+    type = "ssh"
+	user = "ubuntu"
+	privatekey = file("~/.ssh/id_rsa")(here i used file function)
+	host = aws_instance.<nameof the resource>.public.ip
+	        / or self.public.ip
+  }
+provisioner "remote-exec" {
+    inline = [
+      "sudo apt update
+      "sudo apt install nginx -y"
+    ]
+  }
+}
+ depends on {
+   aws_instance.web_sg
+ }
+ 
+ }
+ 
+ Write a variable for th trigger;
+ 
+ Variable "web-trigger"{
+   type = string
+   description = "value for the null resource"
+ }
+    ".tfvars define values"
+  
+  web_trigger = "1.0"/or anything that changes in the trigger Script gets executes, basically terraform dosen't care about the script it cares about the Null resource
+  and its trigger.
+  when the trigger changes the script gets executes.
+  
+we usueally dealing with single user till now there in companies bunch of people work on same thing then we have the issues that if 2 persons execute same script 
+ then 2 diff resources gets created so its not expected in the organization.
+  
+  what ever resource we create all that information gets stored in the .tfstate file in json formate 
+  
+  its like the backent file for the terraform, as we know that the terrafoprm state file is maintained in the local folder, so when we try to execute the same infra
+  from different system it trys to generate a new state file . which means new resource will be provisioned again
+  
+  so to avoid this to happen we keep the tfstate file in some common location to solve the issue.that is terraform "backends"
+  
+  Default the backends in the terraform is local thats why we see the backend file in the localfolder. where we have templates.
+  
+  there are many backend available backends but we are using cloud aws has the s3 bakend.
+   Using the s3 bucket as backend  its like google drive, 
+   * usually if we use the locak file to be kept in the same remote folder where we have one "local file" we write resources and the path can be chnaged to remote / at one place
+   but in this has a issue of locking, in locking we have one person have chance at one time to change . to do he first need to lock the file to execute and change the 
+   executable permissions and then change and then unlock to make other to work till then the other person should wait
+   
+*But in s3 we have the solution for the issue of locking for that we need to create a dynamodb for the  table is created , it stores state file here , to maintain the backend
+ we need 2 resources in s3 
+	one is s3 bucket and dynamo db.
+	
+terraform {
+  backend "s3" {
+        bucket = "thisisforterraform"
+        key = "ntierdeploydev"
+        region = "us-west-2"
+        dynamodb_table = "thisisforteraform"
+
+  }
+}
+  
+
+this is the backend.tf in the template and those are passed through locals also not variables, they are only the values to be described ,
+* when we try to apply it says to do terraform init, so backend gets downloaded, if you have terraform init it askes you for copying local state file into remote s3
+same desired state.
+
+* to check wether these approch is working or not we need to have new linux machine/another system
+
+for that launch the linux ec2 machine and install terraform>install aws cli>configure aws secret keys and access keys> now copy the script and try to execute the script from both the 
+users parellely one will be executing and another one will be on hold and as soon as it gets completed another user script gets execute and if resource alredy exists 
+it stops executing by giving some info who and when  they created.
+ 
+ * Terraform workspaces
+ ------------------------
+ we have solution for multi users and that is backends and now we have another issue that is multiple environments and that menas this script should be executed in multiple
+ envs by changing the <>.vars file this is called reuseability that is workspaces.
+ 
+ * terraform work spaces allows us to locking per workspaces.
+ * each workspace can be considred as one env.
+ * based on env we create that workspaces like QA,DEV,Prod.
+ * they are logical but same templates.
+ 
+ till now we work on one workspace that is default given by terraform when we do init and apply the resource. now we need to deal with multiple workspaces depending
+ on environments.
+ Using workspaces and diff .tfvars file per env/
+ 
+ Befor creating the workspace 
+  do "terraform init -reconfigure"
+  
+  "Terraform workspace new <Qa>"
+  "Terraform workspace --help"
+  terraform workspace list" list of work spaces.
+  No create the new workspace and new .tfvars file copy the old dev.tfvars and rename the past in new .tfvars or change the variables as req, in one machine/ system
+  
+  then apply the command
+  
+  "Terraform apply -var-file="<qa.tfvars>"
+  now in terraform by using one folder we can manage multiplle envs, work on multiple with just workspaces , if one env you can work on default.
+  * this is the best part for infraprovisioning scripts of one can be for multiple envs.
+ ..........
+ 
+ Dynamic Block:
+ --------------
+ 
+ "https://developer.hashicorp.com/terraform/language/expressions/dynamic-blocks"
